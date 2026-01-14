@@ -1,41 +1,36 @@
-import { useQuery } from "@tanstack/react-query";
-import Container from "../../../components/Container/Container";
-import useAxios from "../../../hooks/useAxios";
-import ScholarshipCard from "../../shared/ScholarshipCard/ScholarshipCard";
-import ScholarshipCardSkeleton from "../../shared/ScholarshipCard/ScholarshipCardSkeleton";
-const TopScholarship = () => {
+import { useQuery } from '@tanstack/react-query';
+import Container from '../../../components/Container/Container';
+import ScholarshipCard from '../../shared/ScholarshipCard/ScholarshipCard';
+import ScholarshipCardSkeleton from '../../shared/ScholarshipCard/ScholarshipCardSkeleton';
+import useAxios from '../../../hooks/useAxios';
+
+const TopScholarships = () => {
   const axiosInstance = useAxios();
-  const {
-    data: scholarships = [],
-    isLoading,
-    isFetching,
-  } = useQuery({
-    queryKey: ['scholarships'],
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['top-scholarships'],
     queryFn: async () => {
-      const { data } = await axiosInstance.get('/scholarships?limit=6');
-      return data.scholarships;
+      const res = await axiosInstance.get('/scholarships?limit=6');
+      return res.data; // ✅ FULL RESPONSE
     },
   });
 
+  const scholarships = data?.data || [];
+
   return (
-    <Container className={'py-20'}>
-      {/* Section Header */}
+    <Container className='py-20'>
       <div className='text-center mb-12'>
-        <h2 className='text-3xl md:text-4xl font-bold mb-4'>
+        <h2 className='text-3xl font-bold'>
           Top <span className='text-primary'>Scholarships</span>
         </h2>
-        <p className='text-gray-500 max-w-2xl mx-auto'>
-          Explore top scholarships and career opportunities for B.Tech students
-          across India. Begin your path to innovation and excellence today.
+        <p className='opacity-70 max-w-2xl mx-auto mt-3'>
+          Featured opportunities for B.Tech students across India.
         </p>
       </div>
 
-      {/* Cards Grid */}
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-        {isLoading || isFetching
-          ? [...Array(6)].map((_, index) => (
-              <ScholarshipCardSkeleton key={index} />
-            ))
+        {isLoading
+          ? [...Array(6)].map((_, i) => <ScholarshipCardSkeleton key={i} />)
           : scholarships.map((scholarship) => (
               <ScholarshipCard
                 key={scholarship._id}
@@ -47,4 +42,4 @@ const TopScholarship = () => {
   );
 };
 
-export default TopScholarship;
+export default TopScholarships;
