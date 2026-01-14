@@ -137,7 +137,15 @@ app.get('/scholarships', async (req, res) => {
       .limit(Number(limit))
       .toArray();
 
-    res.status(200).json({ result, totalCount });
+    res.status(200).json({
+      success: true,
+      data: scholarships,
+      meta: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+      },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Failed to fetch scholarships' });
