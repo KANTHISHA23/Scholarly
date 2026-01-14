@@ -20,27 +20,25 @@ const AllScholarships = () => {
   const axiosInstance = useAxios();
   const limit = 6;
 
-  // Inside AllScholarships.jsx
-  const { data: scholarshipsData, isLoading } = useQuery({
+  // 1. Updated queryFn to be more robust
+  const { data: scholarships = [], isLoading } = useQuery({
     queryKey: ['scholarships', schCat, subCat, state, search, page],
     queryFn: async () => {
       const { data } = await axiosInstance.get(
         `/scholarships?schCat=${schCat}&subCat=${subCat}&state=${state}&search=${search}&page=${page}&limit=${limit}`
       );
 
-      // Matches your backend variable name: totalScholaships
+      // Handle Pagination
       if (data?.totalScholaships) {
         const pages = Math.ceil(Number(data.totalScholaships) / limit);
         setTotalPages(pages);
       }
 
-      // FIX: Return 'scholarships' instead of 'result'
-      return data?.scholarships || [];
+      // Return ONLY the array of scholarships
+      // We check for .scholarships first, then .result, then fallback to empty array
+      return data?.scholarships || data?.result || [];
     },
   });
-
-  // Clean up this variable to prevent double-checking the result key in JSX
-  const scholarships = scholarshipsData || [];
 
   const handleReset = () => {
     setSearch('');
@@ -101,20 +99,21 @@ const AllScholarships = () => {
       </div>
 
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
-        {/* Change this line in your grid */}
-        {isLoading
-          ? [...Array(6)].map((_, index) => (
-              <ScholarshipCardSkeleton key={index} />
-            ))
-          : (Array.isArray(scholarships)
-              ? scholarships
-              : scholarships?.result || []
-            )?.map((scholarship) => (
-              <ScholarshipCard
-                key={scholarship._id}
-                scholarship={scholarship}
-              />
-            ))}
+        {isLoading ? (
+          [...Array(6)].map((_, index) => (
+            <ScholarshipCardSkeleton key={index} />
+          ))
+        ) : scholarships.length > 0 ? (
+          scholarships.map((scholarship) => (
+            <ScholarshipCard key={scholarship._id} scholarship={scholarship} />
+          ))
+        ) : (
+          <div className='col-span-full text-center py-20'>
+            <p className='text-xl opacity-50'>
+              No scholarships found matching your criteria.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* pagination  */}
