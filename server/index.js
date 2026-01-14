@@ -121,20 +121,24 @@ app.get('/scholarships', async (req, res) => {
     const db = await getDB();
     const scholarshipsCollection = db.collection('scholarships');
 
-    const { limit = 6, page = 1, state = '' } = req.query;
+    const { state = '', page = 1, limit = 6 } = req.query;
+
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 6;
+    const skip = (pageNum - 1) * limitNum;
 
     const query = {};
-    if (state) {
+
+    if (state.trim()) {
       query.state = { $regex: state, $options: 'i' };
     }
 
-    const skip = (page - 1) * limit;
+    const total = await scholarshipsCollection.countDocuments(query);
 
-    const totalCount = await scholarshipsCollection.countDocuments(query);
-    const result = await scholarshipsCollection
+    const scholarships = await scholarshipsCollection
       .find(query)
-      .skip(Number(skip))
-      .limit(Number(limit))
+      .skip(skip)
+      .limit(limitNum)
       .toArray();
 
     res.status(200).json({
@@ -146,11 +150,15 @@ app.get('/scholarships', async (req, res) => {
         limit: limitNum,
       },
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Failed to fetch scholarships' });
+  } catch (error) {
+    console.error('❌ Scholarships API Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch scholarships',
+    });
   }
 });
+
 
 app.get('/scholarships/:id', async (req, res) => {
   const db = await getDB();
