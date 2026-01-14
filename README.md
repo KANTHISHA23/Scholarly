@@ -6,6 +6,12 @@ The application emphasizes **accessibility, clarity, and real-world usability** 
 
 ---
 
+## 🎯 Live Demo
+
+👉 [View Live Project](https://scholarly-c1a66.web.app/)
+
+---
+
 ## 🚀 Features
 
 - **🔍 Scholarship Discovery**: Browse a curated list of 50+ authentic scholarships. 
