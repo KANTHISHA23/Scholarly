@@ -6,7 +6,7 @@ const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cookieParser());
@@ -16,11 +16,12 @@ app.use(
     origin: [
       'http://localhost:5173',
       'http://localhost:5174',
-      process.env.DOMAIN_URL,
+      'https://scholarly-c1a66.web.app',
     ],
     credentials: true,
   })
 );
+
 const uri = process.env.MONGODB_URL;
 
 const verifyJWTToken = (req, res, next) => {
@@ -196,7 +197,6 @@ async function run() {
       const totalCount = await scholarshipsCollection.countDocuments(query);
       const result = await scholarshipsCollection
         .find(query)
-        .sort(sortFilter)
         .skip(Number(skip))
         .limit(Number(limit))
         .toArray();
@@ -597,6 +597,4 @@ app.get('/', (req, res) => {
   res.send('Scholarly server is running!');
 });
 
-app.listen(port, () => {
-  console.log(`Scholarly app listening on port ${port}`);
-});
+module.exports = app;
